@@ -149,8 +149,8 @@ export function SubmitForm() {
 
       <button
         disabled={!valid || status === "sending"}
-        
-        className="focus-ring mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--color-forest)] px-6 py-4 font-bold text-[var(--color-cream)] transition enabled:hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45"
+        data-loading={status === "sending"}
+        className="focus-ring mt-6 inline-flex data-[loading=true]:animate-pulse w-full items-center justify-center gap-2 rounded-full bg-[var(--color-forest)] px-6 py-4 font-bold text-[var(--color-cream)] transition enabled:hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45"
       >
         {status === "sending" ? (
           <LoaderCircle className="animate-spin" size={18} />
