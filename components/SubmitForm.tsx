@@ -108,7 +108,7 @@ export function SubmitForm() {
               value={gridCell}
               onChange={(event) => setGridCell(event.target.value)}
               placeholder="lat,lng rounded to 4 decimals"
-              className="focus-ring min-h-12 flex-1 rounded-[8px] border border-[rgba(18,53,34,0.18)] bg-[rgba(255,251,235,0.72)] px-4"
+              className="focus-ring focus:ring-2 focus:ring-forest min-h-12 flex-1 rounded-[8px] border border-[rgba(18,53,34,0.18)] bg-[rgba(255,251,235,0.72)] px-4"
             />
             <button 
               type="button"
@@ -131,7 +131,7 @@ export function SubmitForm() {
             type="number"
             min="1"
             step="1"
-            className="focus-ring min-h-12 rounded-[8px] border border-[rgba(18,53,34,0.18)] bg-[rgba(255,251,235,0.72)] px-4"
+            className="focus-ring focus:ring-2 focus:ring-forest min-h-12 rounded-[8px] border border-[rgba(18,53,34,0.18)] bg-[rgba(255,251,235,0.72)] px-4"
           />
         </label>
       </div>
