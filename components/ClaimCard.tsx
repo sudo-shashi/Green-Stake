@@ -6,7 +6,7 @@ export function ClaimCard({ claim }: { claim: Claim }) {
   return (
     <Link
       href={`/claim/${claim.id}`}
-      className="focus-ring group earth-panel block overflow-hidden rounded-[8px] transition duration-300 hover:-translate-y-1"
+      className="focus-ring group earth-panel block overflow-hidden rounded-[8px] transition duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-[rgba(18,53,34,0.15)]"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-[linear-gradient(180deg,#dfe9cf,#8fad66_62%,#6f4728_62%)]">
         <div className="absolute bottom-[28%] left-1/2 h-24 w-4 -translate-x-1/2 rounded-t-full bg-[var(--color-bark)]" />
