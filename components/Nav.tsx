@@ -34,7 +34,7 @@ export function Nav() {
                 className={`focus-ring rounded-full px-4 py-2 text-sm font-semibold transition ${
                   active
                     ? "bg-[var(--color-forest)] text-[var(--color-cream)]"
-                    : "text-[rgba(18,53,34,0.72)] hover:bg-[rgba(18,53,34,0.08)]"
+                    : "text-[rgba(18,53,34,0.72)] hover:bg-[rgba(18,53,34,0.15)] hover:scale-105 transition-all"
                 }`}
               >
                 {link.label}
