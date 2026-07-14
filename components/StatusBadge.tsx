@@ -1,7 +1,7 @@
 import type { ClaimStatus } from "@/lib/claims";
 
 const styles: Record<ClaimStatus, string> = {
-  Pending: "bg-[#f6d68d] text-[#4a3716]",
+  Pending: "bg-[#fbbf24] text-[#78350f] border border-[#f59e0b]",
   Approved: "bg-[#cce6a8] text-[#214116]",
   Rejected: "bg-[#e7ad92] text-[#552414]",
   Paid: "bg-[#b5dfc4] text-[#123522]",
