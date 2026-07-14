@@ -42,7 +42,7 @@ export function StatCounter({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
     >
-      <p className="font-display text-6xl font-semibold">
+      <p className="font-display text-7xl font-extrabold text-[var(--color-forest)]">
         {display}
         <span className="text-3xl text-[var(--color-clay)]">{suffix}</span>
       </p>
