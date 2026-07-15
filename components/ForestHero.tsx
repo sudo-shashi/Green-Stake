@@ -53,7 +53,7 @@ export function ForestHero() {
             Reforestation proofs on Stellar testnet
           </motion.p>
           <motion.h1
-            className="font-display max-w-3xl text-5xl font-semibold leading-[0.95] text-[var(--color-forest)] sm:text-7xl lg:text-8xl"
+            className="font-display max-w-3xl text-5xl font-semibold leading-[0.95] text-[var(--color-forest)] drop-shadow-md sm:text-7xl lg:text-8xl"
             initial={reduceMotion ? false : { opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.08 }}
