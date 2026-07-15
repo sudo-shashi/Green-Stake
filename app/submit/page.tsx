@@ -15,8 +15,8 @@ export default function SubmitPage() {
             </h1>
             <p className="mt-6 text-lg leading-8 text-[rgba(18,53,34,0.68)]">
               Prepare the `submit_claim` contract call with photo proof, GPS
-              grid cell, and XLM stake. A wallet signer can submit the prepared
-              transaction when connected.
+              grid cell, and XLM stake. Connect wallet in header or form first,
+              then submit flow can use wallet address for claim prep.
             </p>
           </div>
         </Reveal>

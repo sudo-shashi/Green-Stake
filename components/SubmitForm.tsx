@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { Camera, Crosshair, LoaderCircle, Send } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
+import { useWallet } from "@/components/WalletProvider";
 
 export function SubmitForm() {
   const reduceMotion = useReducedMotion();
+  const { publicKey, isConnected, isConnecting, connect } = useWallet();
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoHash, setPhotoHash] = useState("");
   const [gridCell, setGridCell] = useState("");
@@ -14,7 +16,7 @@ export function SubmitForm() {
     "idle",
   );
   const [message, setMessage] = useState("");
-  const valid = photo && gridCell.trim().length > 3 && Number(stake) > 0;
+  const valid = photo && gridCell.trim().length > 3 && Number(stake) > 0 && isConnected;
   const contractId = process.env.NEXT_PUBLIC_CONTRACT_ID;
 
   function captureGps() {
@@ -54,6 +56,11 @@ export function SubmitForm() {
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!isConnected) {
+      setMessage("Connect wallet first. Stellar Wallets Kit handles wallet selection.");
+      return;
+    }
+
     if (!valid) return;
     setStatus("sending");
     setMessage("");
@@ -62,6 +69,7 @@ export function SubmitForm() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
+        planter: publicKey,
         photoHash,
         gridCell,
         stakeStroops: Number(stake) * 10_000_000,
@@ -82,6 +90,30 @@ export function SubmitForm() {
   return (
     <form onSubmit={submit} className="earth-panel rounded-[8px] p-5 sm:p-8">
       <div className="grid gap-6">
+        <div className="rounded-[8px] border border-[rgba(18,53,34,0.12)] bg-[rgba(18,53,34,0.04)] p-4">
+          <p className="text-sm font-bold uppercase tracking-[0.16em] text-[var(--color-soil)]">
+            Wallet
+          </p>
+          <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-[rgba(18,53,34,0.68)]">
+              {isConnected && publicKey
+                ? `Connected: ${publicKey.slice(0, 6)}...${publicKey.slice(-6)}`
+                : "No wallet connected yet."}
+            </p>
+            {isConnected ? null : (
+              <button
+                type="button"
+                onClick={() => void connect()}
+                disabled={isConnecting}
+                className="focus-ring inline-flex items-center justify-center gap-2 rounded-full bg-[var(--color-amber)] px-5 py-3 font-bold text-[var(--color-forest)] disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {isConnecting ? <LoaderCircle className="animate-spin" size={18} /> : <Send size={18} />}
+                {isConnecting ? "Opening wallet" : "Connect wallet"}
+              </button>
+            )}
+          </div>
+        </div>
+
         <label className="grid gap-3">
           <span className="text-sm font-bold uppercase tracking-[0.16em] text-[var(--color-soil)]">
             Photo proof
@@ -161,6 +193,8 @@ export function SubmitForm() {
         )}
         {status === "sending"
           ? "Preparing claim"
+          : !isConnected
+            ? "Connect wallet first"
           : status === "sent"
             ? "Claim prepared for wallet signing"
             : "Prepare submit_claim"}

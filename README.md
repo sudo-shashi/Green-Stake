@@ -17,10 +17,12 @@ GreenStake is a tree-plantation verification app built with Next.js and a Soroba
 - Frontend: Next.js 16, React 19, TypeScript
 - Styling: Tailwind CSS 4
 - Animation/UI: Framer Motion, Lucide icons
+- Wallets: Stellar Wallets Kit
 - Contract: Soroban SDK 27, Rust, Stellar
 
 ### What this project does
 - Planter submits tree claim with photo hash, grid cell, and stake
+- Wallet connect uses Stellar Wallets Kit
 - Verifiers review claim and vote
 - Approved claim returns stake and pays fixed reward
 - Rejected claim refunds stake

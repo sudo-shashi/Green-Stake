@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import { Footer } from "@/components/Footer";
 import { Nav } from "@/components/Nav";
+import { WalletProvider } from "@/components/WalletProvider";
 import "./globals.css";
 
 const display = Fraunces({
@@ -30,9 +31,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${display.variable} ${body.variable} h-full antialiased`}>
       <body className="min-h-full bg-[var(--color-cream)] text-[var(--color-forest)]">
-        <Nav />
-        <main className="min-h-screen overflow-hidden">{children}</main>
-        <Footer />
+        <WalletProvider>
+          <Nav />
+          <main className="min-h-screen overflow-hidden">{children}</main>
+          <Footer />
+        </WalletProvider>
       </body>
     </html>
   );
