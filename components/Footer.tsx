@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function Footer() {
   return (
-    <footer className="border-t border-[rgba(18,53,34,0.12)] bg-[var(--color-forest)] text-[var(--color-cream)]">
+    <footer className="mt-20 border-t border-[rgba(18,53,34,0.12)] bg-[var(--color-forest)] text-[var(--color-cream)] shadow-[0_-10px_30px_rgba(0,0,0,0.1)]">
       <div className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:px-8 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>
           <p className="font-display text-3xl font-semibold">GreenStake</p>
