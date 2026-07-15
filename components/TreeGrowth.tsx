@@ -24,7 +24,7 @@ export function TreeGrowth() {
             style={{ scaleY: reduceMotion ? 1 : trunk }}
           />
           <motion.div
-            className="absolute bottom-[58%] left-1/2 grid size-60 -translate-x-1/2 place-items-center rounded-full bg-[var(--color-moss)] sm:size-72 md:size-80"
+            className="absolute bottom-[58%] left-1/2 grid size-60 -translate-x-1/2 animate-pulse place-items-center rounded-full bg-[var(--color-moss)] sm:size-72 md:size-80"
             style={{ scale: reduceMotion ? 1 : canopy, opacity: reduceMotion ? 1 : canopy }}
           >
             <div className="size-40 rounded-full bg-[var(--color-leaf)] sm:size-52 md:size-56" />
