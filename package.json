@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "typecheck": "tsc --noEmit",
+    "contract:build": "cargo build --manifest-path contract/Cargo.toml --target wasm32v1-none --release",
     "start": "next start",
     "lint": "eslint"
   },
