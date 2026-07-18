@@ -1,6 +1,8 @@
 # GreenStake Shashikant
 
 ## Links
+- [Live site](https://green-stake-mocha.vercel.app/)
+- [Demo video](#demo-video)
 - [Project details](#project-details)
 - [Contract details](#contract-details)
 - [How it works](#how-it-works)
@@ -12,6 +14,12 @@
 
 ## Project details
 GreenStake is a tree-plantation verification app built with Next.js and a Soroban smart contract.
+
+### Live site
+- https://green-stake-mocha.vercel.app/
+
+### Demo video
+- Add Google Drive video link here
 
 ### Basic stack
 - Frontend: Next.js 16, React 19, TypeScript
@@ -28,6 +36,20 @@ GreenStake is a tree-plantation verification app built with Next.js and a Soroba
 - Approved claim returns stake and pays fixed reward
 - Rejected claim refunds stake
 - Expired or cancelled claims free claim slots again
+
+## User Feedback
+| Feedback | Solution | Commit ID |
+|----------|----------|-----------|
+| The submit button lacks a clear animated loading state other than the spinner. | Added pulse animation to button when processing | `312eba6` |
+| The input fields do not have a prominent focus ring when clicked. | Added focus:ring-2 and focus:ring-forest to input elements | `3c32a2d` |
+| Nav links are a bit static on hover. | Increased background opacity and added scale transform on hover | `6917b4c` |
+| Claim cards don't pop enough when hovering over them. | Added shadow-xl and increased translateY on hover | `9433078` |
+| The pending status badge color blends in too much. | Updated Pending badge to be brighter amber with a border | `7e2b6c6` |
+| The empty state on the dashboard is confusing when filters hide all claims. | Appended 'Try adjusting filters' to the empty state message | `ad734f1` |
+| The statistical numbers in the counter are too small. | Increased font size to text-7xl and made them extrabold | `082d936` |
+| The hero section text is hard to read against the busy background. | Added drop-shadow-md to hero headings | `7ce7e8d` |
+| The footer lacks visual separation from the rest of the page. | Added a top margin and subtle shadow to the footer | `e01d78d` |
+| The tree growth visualizer lacks a continuous pulse effect. | Added animate-pulse to the canopy rings | `8f8566c` |
 
 ## Contract details
 Contract lives in [`contract/src/lib.rs`](./contract/src/lib.rs).
