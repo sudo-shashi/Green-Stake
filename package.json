@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test tests/lib.test.ts",
     "contract:build": "cargo build --manifest-path contract/Cargo.toml --target wasm32v1-none --release",
     "start": "next start",
     "lint": "eslint"
@@ -26,6 +27,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
+    "tsx": "^4.20.3",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

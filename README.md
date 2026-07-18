@@ -151,6 +151,11 @@ npm run lint
 npm run contract:build
 ```
 
+### CD / Docker
+- `Dockerfile` added for containerized deployment.
+- Next uses `output: "standalone"` so Docker image can run without full source tree.
+- Build image with `docker build -t greenstake-shashikant:local .`
+
 ### Environment variables
 - `NEXT_PUBLIC_CONTRACT_ID`
 - `NEXT_PUBLIC_RPC_URL`
@@ -180,3 +185,9 @@ npm run contract:build
 - Contract schema now stores `ipfs://CID` strings, so redeploy contract and refresh `NEXT_PUBLIC_CONTRACT_ID` after this change.
 - CI uses `npm install --no-package-lock` so frontend checks do not depend on `package-lock.json`.
 - Dashboard and claim pages render photo from Pinata/IPFS URI, not local file path.
+
+## Verification Results
+- `npm run test`: 4 tests passed.
+- `npm run lint`: passed.
+- `npm run build`: passed.
+- `docker build -t greenstake-shashikant:local .`: Docker daemon required locally.
