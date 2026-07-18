@@ -1,9 +1,14 @@
 import { beforeEach, afterEach, test } from "node:test";
 import assert from "node:assert/strict";
 
-import { fingerprintClaim } from "@/lib/pending-claims";
+import {
+  clearMatchedPendingClaims,
+  fingerprintClaim,
+  loadPendingClaims,
+  savePendingClaim,
+  type PendingClaim,
+} from "@/lib/pending-claims";
 import { normalizeGatewayHost, resolvePhotoUrl } from "@/lib/pinata";
-import { clearMatchedPendingClaims, loadPendingClaims, savePendingClaim, type PendingClaim } from "@/lib/pending-claims";
 
 const originalEnv = {
   NEXT_PUBLIC_PINATA_GATEWAY: process.env.NEXT_PUBLIC_PINATA_GATEWAY,
@@ -28,7 +33,10 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  delete globalThis.window;
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: undefined,
+  });
   process.env.NEXT_PUBLIC_PINATA_GATEWAY = originalEnv.NEXT_PUBLIC_PINATA_GATEWAY;
   process.env.PINATA_GATEWAY = originalEnv.PINATA_GATEWAY;
 });
