@@ -118,18 +118,11 @@ Contract lives in [`contract/src/lib.rs`](./contract/src/lib.rs).
 ## Screenshots
 Add app screenshots here when ready.
 
-Suggested set:
-- Home page
-- Submit claim form
-- Dashboard with claim cards
-- How it works flow
-- Why Stellar page
-
-Suggested path:
-- `docs/screenshots/home.png`
-- `docs/screenshots/submit.png`
-- `docs/screenshots/dashboard.png`
-- `docs/screenshots/how-it-works.png`
+| Screenshot 1 | Screenshot 2 |
+|--------------|--------------|
+| Home page<br><br>`docs/screenshots/home.png` | Submit claim form<br><br>`docs/screenshots/submit.png` |
+| Dashboard<br><br>`docs/screenshots/dashboard.png` | How it works<br><br>`docs/screenshots/how.png` |
+| CI<br><br>`docs/screenshots/ci.png` | Mobile responsive<br><br>`docs/screenshots/mobile-responsive.png` |
 
 ## Local setup
 ### Frontend
