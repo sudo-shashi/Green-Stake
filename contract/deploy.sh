@@ -41,6 +41,9 @@ WASM_HASH="$(printf '%s\n' "${BUILD_OUTPUT}" | awk -F': ' '/Wasm Hash:/ {print $
 if [[ -z "${WASM_FILE}" ]]; then
   WASM_FILE="$(find target -name '*.wasm' | head -n 1)"
 fi
+if [[ -z "${WASM_HASH}" && -f "${WASM_FILE}" ]]; then
+  WASM_HASH="$(shasum -a 256 "${WASM_FILE}" | awk '{print $1}')"
+fi
 WASM_FILE_ENV="contract/${WASM_FILE#./}"
 if [[ -z "${WASM_FILE}" ]]; then
   echo "No wasm file found after build." >&2
@@ -77,24 +80,44 @@ stellar contract invoke \
 
 echo "Initialized contract: ${CONTRACT_ID}"
 
-cat > "${ROOT_DIR}/.env" <<EOF
-ADMIN_IDENTITY=${ADMIN_IDENTITY}
-ADMIN_ADDRESS=${ADMIN_ADDRESS}
-VERIFIER_1=${VERIFIER_1}
-VERIFIER_1_ADDRESS=${VERIFIER_1_ADDRESS}
-VERIFIER_2=${VERIFIER_2}
-VERIFIER_2_ADDRESS=${VERIFIER_2_ADDRESS}
-VERIFIER_3=${VERIFIER_3}
-VERIFIER_3_ADDRESS=${VERIFIER_3_ADDRESS}
-CONTRACT_NAME=tree-planting-verification
-CONTRACT_ID=${CONTRACT_ID}
-NEXT_PUBLIC_CONTRACT_ID=${CONTRACT_ID}
-CONTRACT_WASM_FILE=${WASM_FILE_ENV}
-CONTRACT_WASM_HASH=${WASM_HASH}
-RPC_URL=${RPC_URL}
-NEXT_PUBLIC_RPC_URL=${RPC_URL}
-NETWORK_PASSPHRASE="${NETWORK_PASSPHRASE}"
-STELLAR_NETWORK=testnet
-EOF
+ENV_FILE="${ROOT_DIR}/.env"
+TMP_ENV_FILE="$(mktemp)"
+
+touch "${ENV_FILE}"
+
+update_env_value() {
+  local key="$1"
+  local value="$2"
+  if grep -q "^${key}=" "${ENV_FILE}"; then
+    awk -v key="${key}" -v value="${value}" '
+      $0 ~ "^" key "=" { print key "=" value; next }
+      { print }
+    ' "${ENV_FILE}" > "${TMP_ENV_FILE}"
+  else
+    {
+      cat "${ENV_FILE}"
+      printf '%s=%s\n' "${key}" "${value}"
+    } > "${TMP_ENV_FILE}"
+  fi
+  mv "${TMP_ENV_FILE}" "${ENV_FILE}"
+}
+
+update_env_value "ADMIN_IDENTITY" "${ADMIN_IDENTITY}"
+update_env_value "ADMIN_ADDRESS" "${ADMIN_ADDRESS}"
+update_env_value "VERIFIER_1" "${VERIFIER_1}"
+update_env_value "VERIFIER_1_ADDRESS" "${VERIFIER_1_ADDRESS}"
+update_env_value "VERIFIER_2" "${VERIFIER_2}"
+update_env_value "VERIFIER_2_ADDRESS" "${VERIFIER_2_ADDRESS}"
+update_env_value "VERIFIER_3" "${VERIFIER_3}"
+update_env_value "VERIFIER_3_ADDRESS" "${VERIFIER_3_ADDRESS}"
+update_env_value "CONTRACT_NAME" "tree-planting-verification"
+update_env_value "CONTRACT_ID" "${CONTRACT_ID}"
+update_env_value "NEXT_PUBLIC_CONTRACT_ID" "${CONTRACT_ID}"
+update_env_value "CONTRACT_WASM_FILE" "${WASM_FILE_ENV}"
+update_env_value "CONTRACT_WASM_HASH" "${WASM_HASH}"
+update_env_value "RPC_URL" "${RPC_URL}"
+update_env_value "NEXT_PUBLIC_RPC_URL" "${RPC_URL}"
+update_env_value "NETWORK_PASSPHRASE" "\"${NETWORK_PASSPHRASE}\""
+update_env_value "STELLAR_NETWORK" "testnet"
 
 echo "Wrote ${ROOT_DIR}/.env"

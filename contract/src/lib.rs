@@ -2,7 +2,7 @@
 
 use soroban_sdk::{
     contract, contracterror, contractimpl, contracttype, panic_with_error,
-    token::StellarAssetClient, Address, BytesN, Env, String, Vec,
+    token::StellarAssetClient, Address, Env, String, Vec,
 };
 
 const FIXED_REWARD_STROOPS: i128 = 50_000_000;
@@ -25,7 +25,7 @@ pub enum ClaimStatus {
 #[derive(Clone, Eq, PartialEq)]
 pub struct Claim {
     pub planter: Address,
-    pub photo_hash: BytesN<32>,
+    pub photo_uri: String,
     pub grid_cell: String,
     pub status: ClaimStatus,
     pub stake_amount: i128,
@@ -41,7 +41,7 @@ pub enum DataKey {
     Verifiers,
     NextClaimId,
     Claim(u64),
-    PhotoIndex(BytesN<32>),
+    PhotoIndex(String),
     GridIndex(String),
     ApproveVotes(u64),
     RejectVotes(u64),
@@ -52,7 +52,7 @@ pub enum DataKey {
 pub enum Error {
     AlreadyInitialized = 1,
     ClaimNotFound = 2,
-    DuplicatePhotoHash = 3,
+    DuplicatePhotoUri = 3,
     DuplicateGridCell = 4,
     AlreadyVoted = 5,
     NotAuthorizedVerifier = 6,
@@ -87,7 +87,7 @@ impl TreePlantingContract {
     pub fn submit_claim(
         env: Env,
         planter: Address,
-        photo_hash: BytesN<32>,
+        photo_uri: String,
         grid_cell: String,
         stake: i128,
     ) -> u64 {
@@ -98,13 +98,13 @@ impl TreePlantingContract {
             panic_with_error!(&env, Error::InvalidStake);
         }
 
-        Self::ensure_unique_photo(&env, &photo_hash);
+        Self::ensure_unique_photo(&env, &photo_uri);
         Self::ensure_unique_grid(&env, &grid_cell);
 
         let claim_id = Self::next_claim_id(&env);
         let claim = Claim {
             planter: planter.clone(),
-            photo_hash: photo_hash.clone(),
+            photo_uri: photo_uri.clone(),
             grid_cell: grid_cell.clone(),
             status: ClaimStatus::Pending,
             stake_amount: stake,
@@ -122,7 +122,7 @@ impl TreePlantingContract {
             .set(&DataKey::Claim(claim_id), &claim);
         env.storage()
             .persistent()
-            .set(&DataKey::PhotoIndex(photo_hash), &claim_id);
+            .set(&DataKey::PhotoIndex(photo_uri), &claim_id);
         env.storage()
             .persistent()
             .set(&DataKey::GridIndex(grid_cell), &claim_id);
@@ -224,7 +224,7 @@ impl TreePlantingContract {
         env: Env,
         planter: Address,
         claim_id: u64,
-        new_photo_hash: BytesN<32>,
+        new_photo_uri: String,
         new_grid_cell: String,
     ) {
         planter.require_auth();
@@ -236,8 +236,8 @@ impl TreePlantingContract {
         }
         Self::ensure_pending(&env, &claim);
 
-        if new_photo_hash != claim.photo_hash {
-            Self::ensure_unique_photo(&env, &new_photo_hash);
+        if new_photo_uri != claim.photo_uri {
+            Self::ensure_unique_photo(&env, &new_photo_uri);
         }
         if new_grid_cell != claim.grid_cell {
             Self::ensure_unique_grid(&env, &new_grid_cell);
@@ -245,12 +245,12 @@ impl TreePlantingContract {
 
         env.storage()
             .persistent()
-            .remove(&DataKey::PhotoIndex(claim.photo_hash.clone()));
+            .remove(&DataKey::PhotoIndex(claim.photo_uri.clone()));
         env.storage()
             .persistent()
             .remove(&DataKey::GridIndex(claim.grid_cell.clone()));
 
-        claim.photo_hash = new_photo_hash.clone();
+        claim.photo_uri = new_photo_uri.clone();
         claim.grid_cell = new_grid_cell.clone();
 
         env.storage()
@@ -258,7 +258,7 @@ impl TreePlantingContract {
             .set(&DataKey::Claim(claim_id), &claim);
         env.storage()
             .persistent()
-            .set(&DataKey::PhotoIndex(new_photo_hash), &claim_id);
+            .set(&DataKey::PhotoIndex(new_photo_uri), &claim_id);
         env.storage()
             .persistent()
             .set(&DataKey::GridIndex(new_grid_cell), &claim_id);
@@ -395,13 +395,13 @@ impl TreePlantingContract {
         }
     }
 
-    fn ensure_unique_photo(env: &Env, photo_hash: &BytesN<32>) {
+    fn ensure_unique_photo(env: &Env, photo_uri: &String) {
         if env
             .storage()
             .persistent()
-            .has(&DataKey::PhotoIndex(photo_hash.clone()))
+            .has(&DataKey::PhotoIndex(photo_uri.clone()))
         {
-            panic_with_error!(env, Error::DuplicatePhotoHash);
+            panic_with_error!(env, Error::DuplicatePhotoUri);
         }
     }
 
@@ -424,7 +424,7 @@ impl TreePlantingContract {
     fn clear_claim_indices(env: &Env, claim: &Claim) {
         env.storage()
             .persistent()
-            .remove(&DataKey::PhotoIndex(claim.photo_hash.clone()));
+            .remove(&DataKey::PhotoIndex(claim.photo_uri.clone()));
         env.storage()
             .persistent()
             .remove(&DataKey::GridIndex(claim.grid_cell.clone()));

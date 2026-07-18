@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 type SubmitClaimBody = {
   planter?: string;
-  photoHash?: string;
+  photoUri?: string;
   gridCell?: string;
   stakeStroops?: number;
 };
@@ -15,9 +15,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Contract ID is not configured." }, { status: 500 });
   }
 
-  if (!body.photoHash || !body.gridCell || !body.stakeStroops || body.stakeStroops <= 0) {
+  if (!body.photoUri || !body.gridCell || !body.stakeStroops || body.stakeStroops <= 0) {
     return NextResponse.json(
-      { error: "Photo hash, grid cell, and positive stake are required." },
+      { error: "Photo URI, grid cell, and positive stake are required." },
       { status: 400 },
     );
   }
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     method: "submit_claim",
     args: {
       planter: body.planter ?? "wallet_address_required",
-      photo_hash: body.photoHash,
+      photo_uri: body.photoUri,
       grid_cell: body.gridCell,
       stake: body.stakeStroops,
     },

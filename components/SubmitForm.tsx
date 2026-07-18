@@ -1,23 +1,28 @@
 "use client";
 
 import { useState } from "react";
+import { Address, Contract, Networks, TransactionBuilder, nativeToScVal, rpc } from "@stellar/stellar-sdk";
 import { Camera, Crosshair, LoaderCircle, Send } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
+import { StellarWalletsKit } from "@creit.tech/stellar-wallets-kit";
 import { useWallet } from "@/components/WalletProvider";
+import { savePendingClaim } from "@/lib/pending-claims";
 
 export function SubmitForm() {
   const reduceMotion = useReducedMotion();
-  const { publicKey, isConnected, isConnecting, connect } = useWallet();
+  const { publicKey, isConnected, isConnecting, error, connect } = useWallet();
   const [photo, setPhoto] = useState<File | null>(null);
-  const [photoHash, setPhotoHash] = useState("");
+  const [photoUri, setPhotoUri] = useState("");
   const [gridCell, setGridCell] = useState("");
   const [stake, setStake] = useState("5");
-  const [status, setStatus] = useState<"idle" | "locating" | "ready" | "sending" | "sent">(
-    "idle",
-  );
+  const [status, setStatus] = useState<
+    "idle" | "locating" | "uploading" | "ready" | "sending" | "sent"
+  >("idle");
   const [message, setMessage] = useState("");
   const valid = photo && gridCell.trim().length > 3 && Number(stake) > 0 && isConnected;
   const contractId = process.env.NEXT_PUBLIC_CONTRACT_ID;
+  const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL;
+  const networkPassphrase = process.env.NEXT_PUBLIC_NETWORK_PASSPHRASE ?? Networks.TESTNET;
 
   function captureGps() {
     setStatus("locating");
@@ -43,15 +48,7 @@ export function SubmitForm() {
 
   async function selectPhoto(file: File | null) {
     setPhoto(file);
-    setPhotoHash("");
-    if (!file) return;
-
-    const digest = await crypto.subtle.digest("SHA-256", await file.arrayBuffer());
-    setPhotoHash(
-      Array.from(new Uint8Array(digest))
-        .map((byte) => byte.toString(16).padStart(2, "0"))
-        .join(""),
-    );
+    setPhotoUri("");
   }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -62,29 +59,98 @@ export function SubmitForm() {
     }
 
     if (!valid) return;
-    setStatus("sending");
+    setStatus("uploading");
     setMessage("");
 
-    const response = await fetch("/api/submit-claim", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        planter: publicKey,
-        photoHash,
-        gridCell,
-        stakeStroops: Number(stake) * 10_000_000,
-      }),
-    });
-
-    const result = (await response.json()) as { error?: string; signing?: string };
-    if (!response.ok) {
+    if (!contractId || !rpcUrl || !publicKey) {
       setStatus("ready");
-      setMessage(result.error ?? "Claim preparation failed.");
+      setMessage("Wallet, contract, or RPC config missing.");
       return;
     }
 
-    setStatus("sent");
-    setMessage(result.signing ?? "Claim prepared for wallet signing.");
+    try {
+      if (!photo) {
+        throw new Error("Photo file missing.");
+      }
+
+      const uploadForm = new FormData();
+      uploadForm.set("file", photo, photo.name);
+
+      const uploadResponse = await fetch("/api/upload-photo", {
+        method: "POST",
+        body: uploadForm,
+      });
+      const uploadPayload = (await uploadResponse.json()) as {
+        photoUri?: string;
+        photoUrl?: string;
+        error?: string;
+      };
+
+      if (!uploadResponse.ok) {
+        throw new Error(uploadPayload.error ?? "Pinata upload failed.");
+      }
+
+      const uploadedPhotoUri = uploadPayload.photoUri ?? "";
+      if (!uploadedPhotoUri) {
+        throw new Error("Pinata upload returned no image URI.");
+      }
+
+      setPhotoUri(uploadedPhotoUri);
+      setStatus("sending");
+
+      const server = new rpc.Server(rpcUrl);
+      const source = await server.getAccount(publicKey);
+      const contract = new Contract(contractId);
+      const transaction = new TransactionBuilder(source, {
+        fee: "100",
+        networkPassphrase,
+      })
+        .addOperation(
+          contract.call(
+            "submit_claim",
+            new Address(publicKey).toScVal(),
+            nativeToScVal(uploadedPhotoUri),
+            nativeToScVal(gridCell),
+            nativeToScVal(BigInt(Number(stake) * 10_000_000), { type: "i128" }),
+          ),
+        )
+        .setTimeout(30)
+        .build();
+
+      const preparedTransaction = await server.prepareTransaction(transaction);
+      const { signedTxXdr } = await StellarWalletsKit.signTransaction(
+        preparedTransaction.toXDR(),
+        {
+          networkPassphrase,
+          address: publicKey,
+        },
+      );
+
+      const signedTransaction = TransactionBuilder.fromXDR(signedTxXdr, networkPassphrase);
+      const result = await server.sendTransaction(signedTransaction);
+
+      savePendingClaim({
+        id: -Date.now(),
+        planter: publicKey,
+        photoUri: uploadedPhotoUri,
+        photoHash: uploadedPhotoUri,
+        gridCell,
+        status: "Pending",
+        stakeAmount: Number(stake),
+        timestamp: Math.floor(Date.now() / 1000),
+        expiryLedger: 0,
+        votes: { approve: 0, reject: 0 },
+        txHash: result.hash,
+      });
+
+      setStatus("sent");
+      setMessage(`Wallet signed. Tx hash: ${result.hash}`);
+    } catch (submitError) {
+      setStatus("ready");
+      setMessage(
+        submitError instanceof Error ? submitError.message : "Claim signing failed.",
+      );
+    }
   }
 
   return (
@@ -112,6 +178,9 @@ export function SubmitForm() {
               </button>
             )}
           </div>
+          {error ? (
+            <p className="mt-3 text-sm font-semibold text-[var(--color-soil)]">Wallet error: {error}</p>
+          ) : null}
         </div>
 
         <label className="grid gap-3">
@@ -174,30 +243,32 @@ export function SubmitForm() {
       >
         <p className="font-bold">Contract call preview</p>
         <p className="break-all text-[rgba(18,53,34,0.68)]">
-          submit_claim(planter, {photoHash || "photo_hash"}, {gridCell || "grid_cell"},{" "}
+          submit_claim(planter, {photoUri || "photo_uri"}, {gridCell || "grid_cell"},{" "}
           {Number(stake || 0) * 10_000_000} stroops) on {contractId}
         </p>
       </motion.div>
 
       <button
-        disabled={!valid || status === "sending"}
-        data-loading={status === "sending"}
+        disabled={!valid || status === "uploading" || status === "sending"}
+        data-loading={status === "uploading" || status === "sending"}
         className="focus-ring mt-6 inline-flex data-[loading=true]:animate-pulse w-full items-center justify-center gap-2 rounded-full bg-[var(--color-forest)] px-6 py-4 font-bold text-[var(--color-cream)] transition enabled:hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-45"
       >
-        {status === "sending" ? (
+        {status === "uploading" || status === "sending" ? (
           <LoaderCircle className="animate-spin" size={18} />
         ) : status === "sent" ? (
           <Camera size={18} />
         ) : (
           <Send size={18} />
         )}
-        {status === "sending"
-          ? "Preparing claim"
+        {status === "uploading"
+          ? "Uploading to Pinata"
+          : status === "sending"
+            ? "Opening wallet"
           : !isConnected
             ? "Connect wallet first"
           : status === "sent"
-            ? "Claim prepared for wallet signing"
-            : "Prepare submit_claim"}
+            ? "Claim signed and submitted"
+            : "Sign and submit claim"}
       </button>
       {message ? (
         <p className="mt-4 rounded-[8px] bg-[rgba(229,168,58,0.18)] p-4 text-sm font-semibold text-[var(--color-forest)]">

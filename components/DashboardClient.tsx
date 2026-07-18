@@ -1,9 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { ClaimCard } from "@/components/ClaimCard";
 import type { Claim, ClaimStatus } from "@/lib/claims";
+import {
+  clearMatchedPendingClaims,
+  loadPendingClaims,
+  type PendingClaim,
+} from "@/lib/pending-claims";
 
 const filters: Array<ClaimStatus | "All"> = [
   "All",
@@ -25,9 +30,35 @@ export function DashboardClient({
   error?: string;
 }) {
   const [filter, setFilter] = useState<ClaimStatus | "All">("All");
+  const [pendingClaims, setPendingClaims] = useState<PendingClaim[]>(() => loadPendingClaims());
+
+  useEffect(() => {
+    let cancelled = false;
+    const refreshPendingClaims = () => {
+      if (!cancelled) {
+        setPendingClaims(clearMatchedPendingClaims(claims));
+      }
+    };
+
+    window.setTimeout(refreshPendingClaims, 0);
+    const interval = window.setInterval(() => {
+      refreshPendingClaims();
+    }, 2500);
+
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+    };
+  }, [claims]);
+
   const visible = useMemo(
-    () => (filter === "All" ? claims : claims.filter((claim) => claim.status === filter)),
-    [claims, filter],
+    () => {
+      const mergedClaims = [...claims, ...pendingClaims];
+      return filter === "All"
+        ? mergedClaims
+        : mergedClaims.filter((claim) => claim.status === filter);
+    },
+    [claims, filter, pendingClaims],
   );
 
   return (

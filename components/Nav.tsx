@@ -15,7 +15,7 @@ const links = [
 
 export function Nav() {
   const pathname = usePathname();
-  const { publicKey, isConnecting, isConnected, connect, disconnect } = useWallet();
+  const { publicKey, isConnecting, isConnected, error, connect, disconnect } = useWallet();
 
   return (
     <header className="sticky top-0 z-50 border-b border-[rgba(18,53,34,0.12)] bg-[rgba(247,240,223,0.86)] backdrop-blur-xl">
@@ -74,6 +74,11 @@ export function Nav() {
           </Link>
         </div>
       </nav>
+      {error ? (
+        <div className="border-t border-[rgba(18,53,34,0.12)] bg-[rgba(229,168,58,0.14)] px-5 py-3 text-center text-sm font-semibold text-[var(--color-forest)] sm:px-8">
+          Wallet error: {error}
+        </div>
+      ) : null}
       <div className="flex gap-2 overflow-x-auto px-5 pb-3 lg:hidden">
         {links.map((link) => (
           <Link

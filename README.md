@@ -18,10 +18,11 @@ GreenStake is a tree-plantation verification app built with Next.js and a Soroba
 - Styling: Tailwind CSS 4
 - Animation/UI: Framer Motion, Lucide icons
 - Wallets: Stellar Wallets Kit
+- Image storage: Pinata upload API + IPFS gateway URL
 - Contract: Soroban SDK 27, Rust, Stellar
 
 ### What this project does
-- Planter submits tree claim with photo hash, grid cell, and stake
+- Planter uploads photo to Pinata, then submits claim with IPFS URI, grid cell, and stake
 - Wallet connect uses Stellar Wallets Kit
 - Verifiers review claim and vote
 - Approved claim returns stake and pays fixed reward
@@ -34,12 +35,15 @@ Contract lives in [`contract/src/lib.rs`](./contract/src/lib.rs).
 ### Contract name
 - `tree-planting-verification`
 
+### Current deployed contract
+- `CAAWZAJZ6HNZ7VQTPUT6M6N4SKOAVGW5V7NO6Y5B4LHF5Q7CJST5G5TG`
+
 ### Core state
 - Admin address
 - Authorized verifier set
 - Next claim ID
 - Claim records
-- Photo hash index
+- Photo URI index
 - Grid cell index
 - Vote lists for approve and reject
 
@@ -54,7 +58,7 @@ Contract lives in [`contract/src/lib.rs`](./contract/src/lib.rs).
 - `list_claims`: returns claims with optional status filter
 
 ### Claim rules
-- Photo hash must stay unique
+- Photo URI must stay unique
 - Grid cell must stay unique
 - Stake must be positive
 - Verifier can vote once per claim
@@ -63,12 +67,13 @@ Contract lives in [`contract/src/lib.rs`](./contract/src/lib.rs).
 - Expired claims release indexes
 
 ## How it works
-1. Planter submits claim with photo hash, grid cell, and stake.
-2. Contract locks stake and stores claim as `Pending`.
-3. Authorized verifiers vote on claim.
-4. Two approvals move claim to `Approved` and pay out reward.
-5. Two rejections move claim to `Rejected` and refund stake.
-6. Expired or cancelled claims clear reserved indexes.
+1. Planter picks photo and app uploads it to Pinata.
+2. App stores returned `ipfs://CID` on-chain with grid cell and stake.
+3. Contract locks stake and stores claim as `Pending`.
+4. Authorized verifiers vote on claim.
+5. Two approvals move claim to `Approved` and pay out reward.
+6. Two rejections move claim to `Rejected` and refund stake.
+7. Expired or cancelled claims clear reserved indexes.
 
 ## Project structure
 ```text
@@ -124,6 +129,15 @@ npm run lint
 npm run contract:build
 ```
 
+### Environment variables
+- `NEXT_PUBLIC_CONTRACT_ID`
+- `NEXT_PUBLIC_RPC_URL`
+- `NEXT_PUBLIC_NETWORK_PASSPHRASE`
+- `NEXT_PUBLIC_PINATA_GATEWAY`
+- `PINATA_JWT`
+- `PINATA_GATEWAY`
+- `ADMIN_ADDRESS`
+
 ## Scripts
 - `npm run dev`: start Next.js dev server
 - `npm run build`: build frontend
@@ -140,4 +154,7 @@ npm run contract:build
 
 ## Notes
 - `contract/deploy.sh` builds, deploys, and initializes contract on Stellar testnet.
+- Current testnet contract ID is `CAAWZAJZ6HNZ7VQTPUT6M6N4SKOAVGW5V7NO6Y5B4LHF5Q7CJST5G5TG`.
+- Contract schema now stores `ipfs://CID` strings, so redeploy contract and refresh `NEXT_PUBLIC_CONTRACT_ID` after this change.
 - CI uses `npm install --no-package-lock` so frontend checks do not depend on `package-lock.json`.
+- Dashboard and claim pages render photo from Pinata/IPFS URI, not local file path.

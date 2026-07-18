@@ -17,7 +17,8 @@ export type ClaimStatus =
 export type Claim = {
   id: number;
   planter: string;
-  photoHash: string;
+  photoUri: string;
+  photoHash?: string;
   gridCell: string;
   status: ClaimStatus;
   stakeAmount: number;
@@ -86,9 +87,11 @@ export async function getClaimById(id: number) {
 
 function normalizeClaim(value: unknown, index: number): Claim {
   const record = value as Record<string, unknown>;
+  const photoUri = String(record.photo_uri ?? record.photoUrl ?? "");
   return {
     id: index + 1,
     planter: shortAddress(String(record.planter ?? "unknown")),
+    photoUri,
     photoHash: String(record.photo_hash ?? record.photoHash ?? "pending"),
     gridCell: String(record.grid_cell ?? record.gridCell ?? "unmapped"),
     status: normalizeStatus(record.status),

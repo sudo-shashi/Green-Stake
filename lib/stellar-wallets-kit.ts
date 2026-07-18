@@ -1,5 +1,6 @@
 import {
   LocalStorageKeys,
+  KitEventType,
   Networks,
   StellarWalletsKit,
 } from "@creit.tech/stellar-wallets-kit";
@@ -22,4 +23,4 @@ export function initWalletKit() {
   initialized = true;
 }
 
-export { LocalStorageKeys, Networks, StellarWalletsKit };
+export { KitEventType, LocalStorageKeys, Networks, StellarWalletsKit };

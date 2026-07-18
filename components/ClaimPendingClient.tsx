@@ -1,30 +1,50 @@
+"use client";
+
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { useMemo } from "react";
 import { ArrowLeft } from "lucide-react";
-import { ClaimPendingClient } from "@/components/ClaimPendingClient";
 import { ClaimPhotoFrame } from "@/components/ClaimPhotoFrame";
 import { Reveal } from "@/components/Reveal";
 import { StatusBadge } from "@/components/StatusBadge";
-import { getClaimById } from "@/lib/claims";
+import { loadPendingClaims } from "@/lib/pending-claims";
 
-export default async function ClaimPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const claimId = Number(id);
-  if (Number.isNaN(claimId)) notFound();
+export function ClaimPendingClient({ id }: { id: number }) {
+  const claim = useMemo(
+    () => loadPendingClaims().find((item) => item.id === id) ?? null,
+    [id],
+  );
 
-  if (claimId < 0) {
-    return <ClaimPendingClient id={claimId} />;
+  const timeline = useMemo(
+    () => [
+      { label: "Submitted", active: true },
+      { label: "Verifier review", active: true },
+      { label: "Approved", active: false },
+      { label: "Paid", active: false },
+    ],
+    [],
+  );
+
+  if (!claim) {
+    return (
+      <section className="px-5 py-14 sm:px-8">
+        <div className="mx-auto max-w-7xl">
+          <Link
+            href="/dashboard"
+            className="focus-ring inline-flex items-center gap-2 rounded-full bg-[rgba(18,53,34,0.08)] px-4 py-2 text-sm font-bold"
+          >
+            <ArrowLeft size={16} /> Dashboard
+          </Link>
+          <div className="earth-panel mt-8 rounded-[8px] p-8">
+            <p className="font-display text-3xl font-semibold">Pending claim not loaded.</p>
+            <p className="mt-3 text-[rgba(18,53,34,0.68)]">
+              This claim exists in local submission cache, but browser has not restored it yet.
+              Refresh dashboard or return after submit.
+            </p>
+          </div>
+        </div>
+      </section>
+    );
   }
-
-  const claim = await getClaimById(claimId);
-  if (!claim) notFound();
-
-  const timeline = [
-    { label: "Submitted", active: true },
-    { label: "Verifier review", active: ["Pending", "Approved", "Paid"].includes(claim.status) },
-    { label: "Approved", active: ["Approved", "Paid"].includes(claim.status) },
-    { label: "Paid", active: claim.status === "Paid" },
-  ];
 
   return (
     <section className="px-5 py-14 sm:px-8">
@@ -53,7 +73,7 @@ export default async function ClaimPage({ params }: { params: Promise<{ id: stri
               <div className="flex items-start justify-between gap-5">
                 <div>
                   <p className="text-sm font-bold uppercase tracking-[0.18em] text-[var(--color-soil)]">
-                    Claim detail
+                    Pending claim
                   </p>
                   <h1 className="font-display mt-3 text-5xl font-semibold">Claim #{claim.id}</h1>
                 </div>
@@ -64,8 +84,8 @@ export default async function ClaimPage({ params }: { params: Promise<{ id: stri
                 <Detail label="Stake" value={`${claim.stakeAmount} XLM`} />
                 <Detail label="Planter" value={claim.planter} />
                 <Detail label="Photo URI" value={claim.photoUri || claim.photoHash || "pending"} />
-                <Detail label="Approve votes" value={String(claim.votes.approve)} />
-                <Detail label="Reject votes" value={String(claim.votes.reject)} />
+                <Detail label="Tx hash" value={claim.txHash} />
+                <Detail label="Status" value={claim.status} />
               </div>
               <div className="mt-8">
                 <p className="text-sm font-bold uppercase tracking-[0.16em] text-[var(--color-soil)]">
