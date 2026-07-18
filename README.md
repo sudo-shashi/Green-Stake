@@ -19,7 +19,7 @@ GreenStake is a tree-plantation verification app built with Next.js and a Soroba
 - https://green-stake-mocha.vercel.app/
 
 ### Demo video
-- Add Google Drive video link here
+- https://drive.google.com/file/d/1bWOhtKgSNgE365eaci0XivH2lps4qiAB/view?usp=sharing
 
 ### Basic stack
 - Frontend: Next.js 16, React 19, TypeScript
