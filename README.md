@@ -116,19 +116,38 @@ Contract lives in [`contract/src/lib.rs`](./contract/src/lib.rs).
 ```
 
 ## Screenshots
-Add app screenshots here when ready.
-
-| Screenshot 1 | Screenshot 2 |
-|--------------|--------------|
-| Home page<br><br><img width="1876" height="1005" alt="image" src="https://github.com/user-attachments/assets/c51177ad-9f64-4ba8-a6ee-c87ebff96984" />
- | Submit claim form<br><br><img width="1876" height="1005" alt="image" src="https://github.com/user-attachments/assets/fc862eb2-5071-4ed9-8ec4-712a6a0857df" />
- |
-| Dashboard<br><br><img width="1876" height="1005" alt="image" src="https://github.com/user-attachments/assets/ba7d4d26-2768-49d4-b76c-fe0e4e06fda5" />
- | How it works<br><br><img width="1876" height="1005" alt="image" src="https://github.com/user-attachments/assets/6977e6bf-7eae-4976-9f5c-090a6f5269b3" />
- |
-| CI<br><br><img width="1876" height="1005" alt="image" src="https://github.com/user-attachments/assets/fd002123-7d6e-40bc-82a3-5fb758feb816" />
- | Mobile responsive<br><br><img width="417" height="895" alt="image" src="https://github.com/user-attachments/assets/42246fe5-ba44-4791-9f7a-35f8eef09128" />
- |
+<table>
+  <tr>
+    <td width="50%">
+      <strong>Home page</strong><br><br>
+      <img width="100%" alt="Home page screenshot" src="https://github.com/user-attachments/assets/c51177ad-9f64-4ba8-a6ee-c87ebff96984">
+    </td>
+    <td width="50%">
+      <strong>Submit claim form</strong><br><br>
+      <img width="100%" alt="Submit claim form screenshot" src="https://github.com/user-attachments/assets/fc862eb2-5071-4ed9-8ec4-712a6a0857df">
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <strong>Dashboard</strong><br><br>
+      <img width="100%" alt="Dashboard screenshot" src="https://github.com/user-attachments/assets/ba7d4d26-2768-49d4-b76c-fe0e4e06fda5">
+    </td>
+    <td width="50%">
+      <strong>How it works</strong><br><br>
+      <img width="100%" alt="How it works screenshot" src="https://github.com/user-attachments/assets/6977e6bf-7eae-4976-9f5c-090a6f5269b3">
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <strong>CI</strong><br><br>
+      <img width="100%" alt="CI screenshot" src="https://github.com/user-attachments/assets/fd002123-7d6e-40bc-82a3-5fb758feb816">
+    </td>
+    <td width="50%">
+      <strong>Mobile responsive</strong><br><br>
+      <img width="100%" alt="Mobile responsive screenshot" src="https://github.com/user-attachments/assets/42246fe5-ba44-4791-9f7a-35f8eef09128">
+    </td>
+  </tr>
+</table>
 
 ## Local setup
 ### Frontend
