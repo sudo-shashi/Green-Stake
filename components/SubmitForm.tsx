@@ -127,7 +127,22 @@ export function SubmitForm() {
       );
 
       const signedTransaction = TransactionBuilder.fromXDR(signedTxXdr, networkPassphrase);
-      const result = await server.sendTransaction(signedTransaction);
+      const submitResponse = await fetch("/api/submit-claim", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ signedTxXdr: signedTransaction.toXDR() }),
+      });
+      const submitPayload = (await submitResponse.json()) as {
+        hash?: string;
+        status?: string;
+        error?: string;
+      };
+
+      if (!submitResponse.ok) {
+        throw new Error(submitPayload.error ?? "Contract submission failed.");
+      }
 
       savePendingClaim({
         id: -Date.now(),
@@ -140,11 +155,13 @@ export function SubmitForm() {
         timestamp: Math.floor(Date.now() / 1000),
         expiryLedger: 0,
         votes: { approve: 0, reject: 0 },
-        txHash: result.hash,
+        txHash: submitPayload.hash ?? "",
       });
 
       setStatus("sent");
-      setMessage(`Wallet signed. Tx hash: ${result.hash}`);
+      setMessage(
+        `Wallet signed. Network accepted tx${submitPayload.hash ? `: ${submitPayload.hash}` : "."}`,
+      );
     } catch (submitError) {
       setStatus("ready");
       setMessage(
@@ -263,7 +280,7 @@ export function SubmitForm() {
         {status === "uploading"
           ? "Uploading to Pinata"
           : status === "sending"
-            ? "Opening wallet"
+            ? "Broadcasting to testnet"
           : !isConnected
             ? "Connect wallet first"
           : status === "sent"

@@ -21,10 +21,19 @@ jobs:
           node-version: 20
 
       - name: Install frontend deps
-        run: npm install --no-package-lock
+        run: npm ci
+
+      - name: Lint frontend
+        run: npm run lint
 
       - name: Type check frontend
         run: npm run typecheck
+
+      - name: Test frontend helpers
+        run: npm test
+
+      - name: Build frontend
+        run: npm run build
 
   contract:
     name: Contract build
@@ -37,6 +46,9 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32v1-none
+
+      - name: Format check
+        run: cargo fmt --check --manifest-path contract/Cargo.toml
 
       - name: Build contract
         run: cargo build --manifest-path contract/Cargo.toml --target wasm32v1-none --release

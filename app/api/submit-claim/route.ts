@@ -1,36 +1,47 @@
 import { NextResponse } from "next/server";
+import { Networks, TransactionBuilder, rpc } from "@stellar/stellar-sdk";
+
+export const runtime = "nodejs";
 
 type SubmitClaimBody = {
-  planter?: string;
-  photoUri?: string;
-  gridCell?: string;
-  stakeStroops?: number;
+  signedTxXdr?: string;
 };
 
 export async function POST(request: Request) {
-  const body = (await request.json()) as SubmitClaimBody;
-  const contractId = process.env.NEXT_PUBLIC_CONTRACT_ID ?? process.env.CONTRACT_ID;
-
-  if (!contractId) {
-    return NextResponse.json({ error: "Contract ID is not configured." }, { status: 500 });
+  let body: SubmitClaimBody;
+  try {
+    body = (await request.json()) as SubmitClaimBody;
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  if (!body.photoUri || !body.gridCell || !body.stakeStroops || body.stakeStroops <= 0) {
+  if (!body.signedTxXdr) {
+    return NextResponse.json({ error: "Signed transaction XDR is required." }, { status: 400 });
+  }
+
+  const rpcUrl = process.env.NEXT_PUBLIC_RPC_URL ?? process.env.RPC_URL;
+  const networkPassphrase = process.env.NEXT_PUBLIC_NETWORK_PASSPHRASE ?? Networks.TESTNET;
+
+  if (!rpcUrl) {
+    return NextResponse.json({ error: "RPC URL is not configured." }, { status: 500 });
+  }
+
+  try {
+    const server = new rpc.Server(rpcUrl);
+    const transaction = TransactionBuilder.fromXDR(body.signedTxXdr, networkPassphrase);
+    const result = await server.sendTransaction(transaction);
+
+    return NextResponse.json({
+      hash: result.hash,
+      status: result.status,
+      latestLedger: result.latestLedger,
+    });
+  } catch (error) {
     return NextResponse.json(
-      { error: "Photo URI, grid cell, and positive stake are required." },
-      { status: 400 },
+      {
+        error: error instanceof Error ? error.message : "Failed to submit transaction.",
+      },
+      { status: 500 },
     );
   }
-
-  return NextResponse.json({
-    contractId,
-    method: "submit_claim",
-    args: {
-      planter: body.planter ?? "wallet_address_required",
-      photo_uri: body.photoUri,
-      grid_cell: body.gridCell,
-      stake: body.stakeStroops,
-    },
-    signing: "Wallet signature required because submit_claim calls planter.require_auth().",
-  });
 }

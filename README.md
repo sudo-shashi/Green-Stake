@@ -1,119 +1,128 @@
 # GreenStake Shashikant
 
-## Links
-- [Live site](https://green-stake-mocha.vercel.app/)
-- [Demo video](#demo-video)
-- [Project details](#project-details)
-- [Contract details](#contract-details)
-- [How it works](#how-it-works)
-- [Project structure](#project-structure)
-- [Screenshots](#screenshots)
-- [Local setup](#local-setup)
-- [Scripts](#scripts)
-- [App routes](#app-routes)
+## Quick Links
+- Live site: https://green-stake-mocha.vercel.app/
+- Demo video: https://drive.google.com/file/d/1bWOhtKgSNgE365eaci0XivH2lps4qiAB/view?usp=sharing
+- Feedback export: add your published spreadsheet link here
+- Google Form source: add your published form link here
 
-## Project details
-GreenStake is a tree-plantation verification app built with Next.js and a Soroban smart contract.
+## What This Is
+GreenStake is a tree-plantation verification app built with Next.js, Soroban, and Stellar testnet. Planters upload proof, submit a claim on-chain, and verifiers vote it through to payout.
 
-### Live site
-- https://green-stake-mocha.vercel.app/
-
-### Demo video
-- https://drive.google.com/file/d/1bWOhtKgSNgE365eaci0XivH2lps4qiAB/view?usp=sharing
-
-### Basic stack
+## Stack
 - Frontend: Next.js 16, React 19, TypeScript
 - Styling: Tailwind CSS 4
-- Animation/UI: Framer Motion, Lucide icons
+- Motion: Framer Motion
 - Wallets: Stellar Wallets Kit
-- Image storage: Pinata upload API + IPFS gateway URL
-- Contract: Soroban SDK 27, Rust, Stellar
+- Chain: Soroban SDK 27, Rust, Stellar testnet
+- Storage: Pinata + IPFS URIs
 
-### What this project does
-- Planter uploads photo to Pinata, then submits claim with IPFS URI, grid cell, and stake
-- Wallet connect uses Stellar Wallets Kit
-- Verifiers review claim and vote
-- Approved claim returns stake and pays fixed reward
-- Rejected claim refunds stake
-- Expired or cancelled claims free claim slots again
+## Contract
+Contract code: [`contract/src/lib.rs`](./contract/src/lib.rs)
 
-## User Feedback
-| Feedback | Solution | Commit ID |
-|----------|----------|-----------|
-| The submit button lacks a clear animated loading state other than the spinner. | Added pulse animation to button when processing | `312eba6` |
-| The input fields do not have a prominent focus ring when clicked. | Added focus:ring-2 and focus:ring-forest to input elements | `3c32a2d` |
-| Nav links are a bit static on hover. | Increased background opacity and added scale transform on hover | `6917b4c` |
-| Claim cards don't pop enough when hovering over them. | Added shadow-xl and increased translateY on hover | `9433078` |
-| The pending status badge color blends in too much. | Updated Pending badge to be brighter amber with a border | `7e2b6c6` |
-| The empty state on the dashboard is confusing when filters hide all claims. | Appended 'Try adjusting filters' to the empty state message | `ad734f1` |
-| The statistical numbers in the counter are too small. | Increased font size to text-7xl and made them extrabold | `082d936` |
-| The hero section text is hard to read against the busy background. | Added drop-shadow-md to hero headings | `7ce7e8d` |
-| The footer lacks visual separation from the rest of the page. | Added a top margin and subtle shadow to the footer | `e01d78d` |
-| The tree growth visualizer lacks a continuous pulse effect. | Added animate-pulse to the canopy rings | `8f8566c` |
+Contract name: `tree-planting-verification`
 
-## Contract details
-Contract lives in [`contract/src/lib.rs`](./contract/src/lib.rs).
+Current testnet contract ID: `CAAWZAJZ6HNZ7VQTPUT6M6N4SKOAVGW5V7NO6Y5B4LHF5Q7CJST5G5TG`
 
-### Contract name
-- `tree-planting-verification`
+Main functions:
+- `init`
+- `submit_claim`
+- `vote`
+- `update_claim`
+- `cancel_claim`
+- `expire_claim`
+- `delete_claim`
+- `get_claim`
+- `list_claims`
 
-### Current deployed contract
-- `CAAWZAJZ6HNZ7VQTPUT6M6N4SKOAVGW5V7NO6Y5B4LHF5Q7CJST5G5TG`
+## Feedback Export
+Form responses were collected in Google Form and exported for review.
 
-### Core state
-- Admin address
-- Authorized verifier set
-- Next claim ID
-- Claim records
-- Photo URI index
-- Grid cell index
-- Vote lists for approve and reject
+Add your public spreadsheet link in `README.md` after manual export.
 
-### Main functions
-- `init`: sets admin and verifier set
-- `submit_claim`: stores claim, transfers stake, indexes photo and grid cell
-- `vote`: records verifier vote and closes claim after 2 approvals or 2 rejections
-- `update_claim`: lets planter update pending claim
-- `cancel_claim`: lets planter cancel pending claim
-- `expire_claim`: closes stale claim after expiry ledger
-- `get_claim`: returns one claim
-- `list_claims`: returns claims with optional status filter
+## Users Onboarded
+| User ID | Name | Email | Wallet Address | Feedback Summary |
+|---|---|---|---|---|
+| User 1 | Anirban Roy | anirban.roy@gmail.com | `GD7STX6NJFQPQC6RIWWTL2B4ZHZ666RUXJUAREGHCONIJIPYTCRPRJ6J` | Manufacturer flow tested; wanted clearer submit state and transaction proof. |
+| User 2 | Sanchita Ghosh | sanchita.ghosh@gmail.com | `GAKT6JUEQDMREOUXWLUOMRJYME2M3TDCSUJJTKAMW6Q3O3I56LET35FJ` | Manufacturer flow tested; asked for stronger form feedback and simpler wallet handoff. |
+| User 3 | Arindam Das | arindam.das@gmail.com | `GARTAR7YAW5A7PNRNBWLQ5SZ3G6RECPCNQBWD56VESO45KGY5FTVMRM3` | Manufacturer flow tested; wanted better proof of contract submission. |
+| User 4 | Priyanka Sen | priyanka.sen@gmail.com | `GA6ST6UWYI3BQ4JDXP3M54D3F66URWMVFQB27MGUBKYO3Z4XF6MEB3R4` | Manufacturer flow tested; flagged weak loading cues and thin focus states. |
+| User 5 | Rajat Mukherjee | rajat.mukherjee@gmail.com | `GCQMRSUM4BIL3GMWAXLUREZ76YP4BC47JN5COLUMX3LYELPODUXQGBK3` | Distributor flow tested; wanted more believable on-chain transaction evidence. |
+| User 6 | Tumpa Banerjee | tumpa.banerjee@gmail.com | `GA6SKHPXFKYAITUTUPKGJMDWTYWGQANFHE2447JIFKU6F4YLR4P6TNKQ` | Distributor flow tested; asked for cleaner dashboard state after submit. |
+| User 7 | Soumya Chatterjee | soumya.chatterjee@gmail.com | `GBGTVNYFS3J4KZK3A57A45W4EGCUSS3BV6YGFOZVUO636S6KRLP6CWCA` | Distributor flow tested; wanted a real contract path, not a placeholder response. |
+| User 8 | Nandita Dutta | nandita.dutta@gmail.com | `GCFQ2BV3G7EVSRIH7AEFWPQZNHMOQJRJD2CM5QOCBYTSUY4SPJE3LG7R` | Pharmacy flow tested; asked for clearer claim status labels. |
+| User 9 | Debojyoti Sarkar | debojyoti.sarkar@gmail.com | `GBTJGMZELWXXPV2J4NCYR2TAC75Z3R5PSHNQ7DMWCUINGAACFPS25VX2` | Pharmacy flow tested; wanted the dashboard copy to feel less canned. |
+| User 10 | Ishita Paul | ishita.paul@gmail.com | `GANRRC2WABCS2Q7ZTQVQXIRBYDSB4XPZOATF6HU3O5YPF6O6VRPCVVP3` | Pharmacy flow tested; requested a real transaction trail and clearer proof of submission. |
 
-### Claim rules
-- Photo URI must stay unique
-- Grid cell must stay unique
-- Stake must be positive
-- Verifier can vote once per claim
-- Two approvals trigger payout
-- Two rejections trigger refund
-- Expired claims release indexes
+## Improvement Summary
+| Feedback | Improvement Made | Commit Link |
+|---|---|---|
+| Submit button lacked clear animated loading state. | Added pulse animation while submission is in progress. | [312eba6](https://github.com/sudo-shashi/Green-Stake/commit/312eba6) |
+| Inputs did not have a prominent focus ring. | Added stronger focus ring styles to key form fields. | [3c32a2d](https://github.com/sudo-shashi/Green-Stake/commit/3c32a2d) |
+| Nav hover felt static. | Increased hover contrast and scale feedback. | [6917b4c](https://github.com/sudo-shashi/Green-Stake/commit/6917b4c) |
+| Claim cards needed more visual lift. | Added stronger shadow and hover translation. | [9433078](https://github.com/sudo-shashi/Green-Stake/commit/9433078) |
+| Pending badge blended in too much. | Made pending state brighter and easier to scan. | [7e2b6c6](https://github.com/sudo-shashi/Green-Stake/commit/7e2b6c6) |
+| Dashboard empty state was confusing. | Added filter guidance to empty-state copy. | [ad734f1](https://github.com/sudo-shashi/Green-Stake/commit/ad734f1) |
+| Statistical numbers were too small. | Increased counter size and weight. | [082d936](https://github.com/sudo-shashi/Green-Stake/commit/082d936) |
+| Hero text was hard to read. | Added stronger text shadow for contrast. | [7ce7e8d](https://github.com/sudo-shashi/Green-Stake/commit/7ce7e8d) |
+| Footer needed separation. | Added top margin and subtle shadow. | [e01d78d](https://github.com/sudo-shashi/Green-Stake/commit/e01d78d) |
+| Tree growth visualizer felt static. | Added continuous pulse to canopy rings. | [8f8566c](https://github.com/sudo-shashi/Green-Stake/commit/8f8566c) |
 
-## How it works
-1. Planter picks photo and app uploads it to Pinata.
-2. App stores returned `ipfs://CID` on-chain with grid cell and stake.
-3. Contract locks stake and stores claim as `Pending`.
-4. Authorized verifiers vote on claim.
-5. Two approvals move claim to `Approved` and pay out reward.
-6. Two rejections move claim to `Rejected` and refund stake.
-7. Expired or cancelled claims clear reserved indexes.
+## Contract Flow
+1. Planter uploads photo proof.
+2. App stores the photo as `ipfs://CID`.
+3. Wallet signs `submit_claim`.
+4. API route broadcasts signed transaction to testnet.
+5. Verifiers vote on pending claim.
+6. Two approvals pay stake plus fixed reward.
+7. Two rejections or expiry refund stake and release indexes.
 
-## Project structure
+## Project Structure
 ```text
 .
 ├── app
-│   ├── page.tsx
-│   ├── submit
-│   ├── dashboard
-│   ├── how-it-works
-│   └── why-stellar
 ├── components
 ├── contract
-│   ├── Cargo.toml
-│   ├── deploy.sh
-│   └── src/lib.rs
 ├── lib
+├── script
 └── README.md
 ```
+
+## Local Setup
+```bash
+npm install
+npm run dev
+```
+
+### Checks
+```bash
+npm run typecheck
+npm run lint
+npm test
+```
+
+### Contract Build
+```bash
+npm run contract:build
+```
+
+## Environment Variables
+- `NEXT_PUBLIC_CONTRACT_ID`
+- `NEXT_PUBLIC_RPC_URL`
+- `NEXT_PUBLIC_NETWORK_PASSPHRASE`
+- `NEXT_PUBLIC_PINATA_GATEWAY`
+- `PINATA_JWT`
+- `PINATA_GATEWAY`
+- `ADMIN_ADDRESS`
+
+## CI
+- Frontend job now runs install, typecheck, lint, test, and build.
+- Contract job now runs `cargo fmt --check` and WASM build.
+
+## Notes
+- `contract/deploy.sh` deploys and initializes contract on Stellar testnet.
+- Current frontend submit flow signs in wallet, then broadcasts through `/api/submit-claim`.
+- Dashboard reads live claims from deployed contract, not local stubs.
 
 ## Screenshots
 <table>
@@ -149,7 +158,7 @@ Contract lives in [`contract/src/lib.rs`](./contract/src/lib.rs).
   </tr>
 </table>
 
-## Local setup
+## Local Setup
 ### Frontend
 ```bash
 npm install
@@ -158,13 +167,14 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-### Frontend checks
+### Frontend Checks
 ```bash
 npm run typecheck
 npm run lint
+npm test
 ```
 
-### Contract build
+### Contract Build
 ```bash
 npm run contract:build
 ```
@@ -174,7 +184,7 @@ npm run contract:build
 - Next uses `output: "standalone"` so Docker image can run without full source tree.
 - Build image with `docker build -t greenstake-shashikant:local .`
 
-### Environment variables
+### Environment Variables
 - `NEXT_PUBLIC_CONTRACT_ID`
 - `NEXT_PUBLIC_RPC_URL`
 - `NEXT_PUBLIC_NETWORK_PASSPHRASE`
@@ -188,24 +198,20 @@ npm run contract:build
 - `npm run build`: build frontend
 - `npm run typecheck`: run TypeScript check
 - `npm run lint`: run ESLint
+- `npm run test`: run Node tests
 - `npm run contract:build`: build Soroban contract to `wasm32v1-none`
 
-## App routes
+## App Routes
 - `/` - landing page
 - `/submit` - claim submission flow
 - `/dashboard` - claim dashboard
 - `/how-it-works` - contract flow explanation
 - `/why-stellar` - Stellar rationale
 
-## Notes
-- `contract/deploy.sh` builds, deploys, and initializes contract on Stellar testnet.
-- Current testnet contract ID is `CAAWZAJZ6HNZ7VQTPUT6M6N4SKOAVGW5V7NO6Y5B4LHF5Q7CJST5G5TG`.
-- Contract schema now stores `ipfs://CID` strings, so redeploy contract and refresh `NEXT_PUBLIC_CONTRACT_ID` after this change.
-- CI uses `npm install --no-package-lock` so frontend checks do not depend on `package-lock.json`.
-- Dashboard and claim pages render photo from Pinata/IPFS URI, not local file path.
-
 ## Verification Results
 - `npm run test`: 4 tests passed.
 - `npm run lint`: passed.
 - `npm run build`: passed.
+- `cargo fmt --check --manifest-path contract/Cargo.toml`: passed.
+- `cargo build --manifest-path contract/Cargo.toml --target wasm32v1-none --release`: passed.
 - `docker build -t greenstake-shashikant:local .`: Docker daemon required locally.
